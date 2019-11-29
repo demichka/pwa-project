@@ -1,0 +1,22 @@
+{
+  "name": "pwa-project",
+  "version": "1.0.0",
+  "description": "PWA project created with Udemy course Progressive Web Apps by Maximilian Schwarzmüller",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -c-1"
+  },
+  "keywords": [
+    "pwa",
+    "progressive",
+    "web",
+    "app",
+    "complete",
+    "tutorial"
+  ],
+  "author": "demichka",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.12.0"
+  }
+}
