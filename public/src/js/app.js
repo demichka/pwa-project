@@ -18,10 +18,3 @@ window.addEventListener('beforeinstallprompt', function(event) {
     deferredPrompt = event;
     return false;
 });
-
-fetch('https://httpbin.org/ip').then((res) => {
-    console.log(res);
-    return res.json();
-}).then(data => {
-    console.log(data);
-})
