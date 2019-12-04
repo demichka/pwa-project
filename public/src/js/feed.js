@@ -2,6 +2,7 @@ var shareImageButton = document.querySelector('#share-image-button');
 var createPostArea = document.querySelector('#create-post');
 var closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
 var sharedMomentsArea = document.querySelector('#shared-moments');
+sharedMomentsArea.classList.add('mdl-grid');
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
@@ -19,6 +20,15 @@ function openCreatePostModal() {
       deferredPromt = null;
     });
   }
+
+  // if('serviceWorker' in navigator) {
+  //   navigator.serviceWorker.getRegistrations()
+  //     .then(registrations => {
+  //       for (let i = 0; i<registrations.length; i++) {
+  //         registrations[i].unregister();
+  //       }
+  //     })
+  // }
 }
 
 function closeCreatePostModal() {
@@ -29,9 +39,26 @@ shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 
+function onSaveButtonClicked(e) {
+  console.log('clicked');
+  if('caches' in window) {
+    caches.open('user-requested')
+    .then(cache => {
+      cache.add('https://httpbin.org/get');
+      cache.add('/src/images/sf-boat.jpg');
+    });
+  } 
+}
+
+function clearCards() {
+  while(sharedMomentsArea.hasChildNodes()) {
+    sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
+  }
+}
+
 function createCard() {
   var cardWrapper = document.createElement('div');
-  cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
+  cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp mdl-cell--middle';
   var cardTitle = document.createElement('div');
   cardTitle.className = 'mdl-card__title';
   cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
@@ -46,15 +73,59 @@ function createCard() {
   cardSupportingText.className = 'mdl-card__supporting-text';
   cardSupportingText.textContent = 'In San Francisco';
   cardSupportingText.style.textAlign = 'center';
+  // const cardSaveBtn = document.createElement('button');
+  // cardSaveBtn.textContent = 'Save';
+  // cardSaveBtn.addEventListener('click', onSaveButtonClicked);
+  // cardSupportingText.appendChild(cardSaveBtn);
   cardWrapper.appendChild(cardSupportingText);
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
+
+var url = 'https://httpbin.org/post';
+var networkDataReceived = false;
+
+fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    message: 'Some message'
+  }) 
+})
   .then(function(res) {
     return res.json();
   })
   .then(function(data) {
+    networkDataReceived = true;
+    console.log('From web', data);
+    clearCards();
     createCard();
   });
+
+if ('caches' in window) {
+  caches.match(url)
+    .then(function(response) {
+      if (response) {
+        return response.json();
+      }
+    })
+    .then(function(data) {
+      console.log('From cache', data);
+      if (!networkDataReceived) {
+        clearCards();
+        createCard();
+      }
+    });
+}
+
+
+
+
+
+
+
+
